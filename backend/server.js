@@ -13,9 +13,12 @@ app.use(express.json());
 
 // CORS Configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  origin: ["https://quiz-app-mern-stack-tan.vercel.app"],
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
   credentials: true,
 }));
+
 
 
 // MongoDB Connection
