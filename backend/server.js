@@ -12,14 +12,11 @@ const app = express();
 app.use(express.json());
 
 // CORS Configuration
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
 app.use(cors({
-  origin: ["https://quiz-app-mern-stack-tan.vercel.app"],
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"],
+  origin: CLIENT_URL,
   credentials: true,
 }));
-
-
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -28,14 +25,13 @@ mongoose.connect(process.env.MONGO_URI, {
 })
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.error('❌ MongoDB Connection Error:', err));
-  
-  // Mongoose Schema & Model
-  const quizSchema = new mongoose.Schema({
-    username: String,
-    score: Number,
-    totalQuestions: Number,
-  });
-  console.log("✅ CLIENT_URL from .env:", process.env.CLIENT_URL);
+
+// Mongoose Schema & Model
+const quizSchema = new mongoose.Schema({
+  username: String,
+  score: Number,
+  totalQuestions: Number,
+});
 const QuizResult = mongoose.model('QuizResult', quizSchema);
 
 // GraphQL Type Definitions
