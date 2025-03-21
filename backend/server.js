@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 
 // ✅ Define Allowed Client URL
-const CLIENT_URL = process.env.CLIENT_URL || "https://quiz-app-mern-stack-7yag-794nnggak-aashish-kushwaha-projects.vercel.app";
+const CLIENT_URL = process.env.CLIENT_URL || "https://quiz-app-mern-stack-7yag.vercel.app";
 
 // ✅ Use CORS Middleware Globally
 app.use(cors({ 
