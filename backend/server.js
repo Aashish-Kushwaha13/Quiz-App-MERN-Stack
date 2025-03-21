@@ -8,13 +8,14 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// ✅ Define Allowed Client URL
+const CLIENT_URL = process.env.CLIENT_URL;
+
+// ✅ Use CORS Middleware for both GraphQL and REST API
+app.use(cors({ origin: CLIENT_URL, credentials: true }));
 app.use(express.json());
 
-const CLIENT_URL = process.env.CLIENT_URL;
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
-
-// MongoDB Connection
+// ✅ MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -23,7 +24,7 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// Mongoose Schema & Model
+// ✅ Define Mongoose Schema & Model
 const quizSchema = new mongoose.Schema({
   username: String,
   score: Number,
@@ -31,7 +32,7 @@ const quizSchema = new mongoose.Schema({
 });
 const QuizResult = mongoose.model("QuizResult", quizSchema);
 
-// GraphQL Type Definitions
+// ✅ GraphQL Type Definitions
 const typeDefs = `
   type QuizResult {
     id: ID!
@@ -49,7 +50,7 @@ const typeDefs = `
   }
 `;
 
-// ✅ Corrected Resolvers
+// ✅ GraphQL Resolvers
 const resolvers = {
   Query: {
     getResults: async () => await QuizResult.find().sort({ score: -1 }),
@@ -63,7 +64,7 @@ const resolvers = {
   },
 };
 
-// Initialize Apollo Server
+// ✅ Initialize Apollo Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -72,9 +73,11 @@ const server = new ApolloServer({
 
 async function startServer() {
   await server.start();
-  server.applyMiddleware({ app, cors: false });
+  
+  // ✅ Apply GraphQL Middleware with CORS enabled
+  server.applyMiddleware({ app, cors: { origin: CLIENT_URL, credentials: true } });
 
-  // REST API Route to Save Quiz Results
+  // ✅ REST API Route to Save Quiz Results
   app.post("/submit-quiz", async (req, res) => {
     try {
       const { username, score, totalQuestions } = req.body;
@@ -95,7 +98,7 @@ async function startServer() {
 
 startServer();
 
-// Start the Server
+// ✅ Start the Express Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
