@@ -9,10 +9,15 @@ dotenv.config();
 const app = express();
 
 // ✅ Define Allowed Client URL
-const CLIENT_URL = process.env.CLIENT_URL;
+const CLIENT_URL = process.env.CLIENT_URL || "https://quiz-app-mern-stack-7yag-794nnggak-aashish-kushwaha-projects.vercel.app";
 
-// ✅ Use CORS Middleware for both GraphQL and REST API
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+// ✅ Use CORS Middleware Globally
+app.use(cors({ 
+  origin: CLIENT_URL, 
+  credentials: true, 
+  methods: "GET,POST,PUT,DELETE,OPTIONS" 
+}));
+
 app.use(express.json());
 
 // ✅ MongoDB Connection
@@ -24,15 +29,7 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// ✅ Define Mongoose Schema & Model
-const quizSchema = new mongoose.Schema({
-  username: String,
-  score: Number,
-  totalQuestions: Number,
-});
-const QuizResult = mongoose.model("QuizResult", quizSchema);
-
-// ✅ GraphQL Type Definitions
+// ✅ GraphQL Type Definitions & Resolvers
 const typeDefs = `
   type QuizResult {
     id: ID!
@@ -50,7 +47,6 @@ const typeDefs = `
   }
 `;
 
-// ✅ GraphQL Resolvers
 const resolvers = {
   Query: {
     getResults: async () => await QuizResult.find().sort({ score: -1 }),
@@ -74,7 +70,7 @@ const server = new ApolloServer({
 async function startServer() {
   await server.start();
   
-  // ✅ Apply GraphQL Middleware with CORS enabled
+  // ✅ Apply GraphQL Middleware with CORS
   server.applyMiddleware({ app, cors: { origin: CLIENT_URL, credentials: true } });
 
   // ✅ REST API Route to Save Quiz Results
@@ -87,6 +83,7 @@ async function startServer() {
 
       const result = new QuizResult({ username, score, totalQuestions });
       await result.save();
+
       res.status(201).json({ message: "✅ Result saved successfully!" });
     } catch (error) {
       res.status(500).json({ error: "❌ Error saving result: " + error.message });
@@ -98,7 +95,7 @@ async function startServer() {
 
 startServer();
 
-// ✅ Start the Express Server
+// ✅ Start Express Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
